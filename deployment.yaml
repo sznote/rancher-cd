@@ -1,0 +1,60 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: webindex
+  labels:
+    app: indexhtml
+data:
+  index.html: |
+    <html>
+      <body> 
+          Hello My WebServer  !! 
+      </body>
+    </html>
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name:  svc-webserver
+spec:
+  selector:
+    app: webserver
+  type:   NodePort
+  ports:
+  - name:  http-port
+    port:  80
+    targetPort:  80
+    nodePort: 30080
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webserver
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: webserver
+  template:
+    metadata:
+      labels:
+        app: webserver
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.16.1
+        ports:
+        - containerPort: 80
+        volumeMounts:
+          - name:  indexfile
+            mountPath:  /usr/share/nginx/html/index.html
+            subPath: index.html
+      volumes: 
+        - name: indexfile  
+          configMap:
+            name: webindex
+
+#kubectl  apply -f  /tmp/1.yaml  --validate  --dry-run
