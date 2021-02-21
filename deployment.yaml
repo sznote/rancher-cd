@@ -34,7 +34,7 @@ kind: Deployment
 metadata:
   name: webserver
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
       app: webserver
